@@ -180,9 +180,9 @@ export function readFile(
 ): Promise<string>
 
 export function readMultipleFiles(
-	filePathArr: Array<String>,
+	filePathArr: array,
 	encodingOrOptions?: any
-): Promise<string>
+): Promise<array>
 
 export function read(
 	filepath: string,

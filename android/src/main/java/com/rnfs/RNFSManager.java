@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.util.SparseArray;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -231,18 +232,25 @@ public class RNFSManager extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void readMultipleFiles(ReadableArray filepathArr, Promise promise) {
-    String currentFilepath = new String();
+    String currentFilepath = "";
     try {
-      ArrayList <String> base64Arr = new ArrayList();
+      WritableArray base64Arr = Arguments.createArray();
+      if (filepathArr.size() == 0) {
+        // 返回
+        promise.resolve(base64Arr);
+        return;
+      }
       for (int i = 0; i < filepathArr.size(); i++) {
         String filepath = filepathArr.getString(i);
         // 记录当前路径
         currentFilepath = filepath;
+        // 图片转base64
         InputStream inputStream = getInputStream(filepath);
         byte[] inputData = getInputStreamBytes(inputStream);
         String base64Content = Base64.encodeToString(inputData, Base64.NO_WRAP);
         // 保存
-        base64Arr.add(base64Content);
+        base64Arr.pushString(base64Content);
+        Log.e("chengkun",base64Content);
       }
       // 返回
       promise.resolve(base64Arr);

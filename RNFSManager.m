@@ -289,7 +289,7 @@ RCT_EXPORT_METHOD(readMultipleFiles:(NSArray *)filePathArr
     NSMutableArray <NSString *>*base64Arr = [NSMutableArray array];
     for (NSString *filePath in filePathArr) {
         BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:filePath];
-        
+    
         if (!fileExists) {
             return reject(@"ENOENT", [NSString stringWithFormat:@"ENOENT: no such file or directory, open '%@'", filePath], nil);
         }
@@ -310,7 +310,7 @@ RCT_EXPORT_METHOD(readMultipleFiles:(NSArray *)filePathArr
         // 保存
         [base64Arr addObject:base64Content];
     }
-    
+    NSLog(@"filePathArr = %@", base64Arr);
     resolve(base64Arr);
 }
 
