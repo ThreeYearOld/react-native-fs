@@ -171,6 +171,48 @@ function readFileGeneric(filepath: string, encodingOrOptions: ?string, command: 
 }
 
 /**
+ * Generic function used by readMultipleFile and readFileAssets
+ */
+async function readMultipleFilesGeneric(filepathArr: array, encodingOrOptions: ?string, command: Function) {
+  if (filepathArr.length == 0) return [];
+  var options = {
+    encoding: 'utf8'
+  };
+
+  if (encodingOrOptions) {
+    if (typeof encodingOrOptions === 'string') {
+      options.encoding = encodingOrOptions;
+    } else if (typeof encodingOrOptions === 'object') {
+      options = encodingOrOptions;
+    }
+  }
+  let pathArr = [];
+  for (let i = 0; i < filepathArr.length; i++) {
+    // 获取单条路径
+    let filepath = normalizeFilePath(filepathArr[i]);
+    pathArr.push(filepath);
+  }
+  return command(pathArr).then((b64Arr) => {
+    let base64Arr = [];
+    for (let i = 0; i < b64Arr.length; i++) {
+      let b64 = b64Arr[i];
+      let contents;
+      if (options.encoding === 'utf8') {
+        contents = utf8.decode(base64.decode(b64));
+      } else if (options.encoding === 'ascii') {
+        contents = base64.decode(b64);
+      } else if (options.encoding === 'base64') {
+        contents = b64;
+      } else {
+        throw new Error('Invalid encoding type "' + String(options.encoding) + '"');
+      }
+      base64Arr.push(contents);
+    }
+    return base64Arr;
+  });
+}
+
+/**
  * Generic function used by readDir and readDirAssets
  */
 function readDirGeneric(dirpath: string, command: Function) {
@@ -304,6 +346,10 @@ var RNFS = {
 
   readFile(filepath: string, encodingOrOptions?: any): Promise<string> {
     return readFileGeneric(filepath, encodingOrOptions, RNFSManager.readFile);
+  },
+
+  readMultipleFiles(filepathArr: array, encodingOrOptions?: any): Promise<array> {
+    return readMultipleFilesGeneric(filepathArr, encodingOrOptions, RNFSManager.readMultipleFiles);
   },
 
   read(filepath: string, length: number = 0, position: number = 0, encodingOrOptions?: any): Promise<string> {
